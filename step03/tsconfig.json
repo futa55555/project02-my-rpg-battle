@@ -7,5 +7,5 @@
     "noEmit": true,
     "types": ["node", "jest"]
   },
-  "include": ["src/**/*.ts", "test/combatant.test.ts"]
+  "include": ["src/**/*.ts", "test/**/*.test.ts"]
 }

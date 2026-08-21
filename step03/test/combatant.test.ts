@@ -1,30 +1,34 @@
 import { Combatant } from "../src/combatant";
 
-test("戦闘キャラを作成できる", () => {
-  const hero = new Combatant("勇者", 100, 20, 5);
-  expect(hero).toBeInstanceOf(Combatant);
-});
+describe("作成系", () => {
+  test("戦闘キャラを作成できる", () => {
+    const hero = new Combatant("勇者", 100, 20, 5);
+    expect(hero).toBeInstanceOf(Combatant);
+  });
 
-test("name空の戦闘キャラを作成できない", () => {
-  expect(() => new Combatant(" ", 100, 20, 5)).toThrow("name cannot be empty");
-});
+  test("name空の戦闘キャラを作成できない", () => {
+    expect(() => new Combatant(" ", 100, 20, 5)).toThrow(
+      "name cannot be empty",
+    );
+  });
 
-test("hpが0以下の戦闘キャラを作成できない", () => {
-  expect(() => new Combatant("勇者", 0, 20, 5)).toThrow(
-    "hp must be greater than 0",
-  );
-});
+  test("hpが0以下の戦闘キャラを作成できない", () => {
+    expect(() => new Combatant("勇者", 0, 20, 5)).toThrow(
+      "hp must be greater than 0",
+    );
+  });
 
-test("攻撃力が負の戦闘キャラを作成できない", () => {
-  expect(() => new Combatant("勇者", 100, -10, 5)).toThrow(
-    "strength cannot be negative",
-  );
-});
+  test("攻撃力が負の戦闘キャラを作成できない", () => {
+    expect(() => new Combatant("勇者", 100, -10, 5)).toThrow(
+      "strength cannot be negative",
+    );
+  });
 
-test("防御力が負の戦闘キャラを作成できない", () => {
-  expect(() => new Combatant("勇者", 100, 20, -5)).toThrow(
-    "defense cannot be negative",
-  );
+  test("防御力が負の戦闘キャラを作成できない", () => {
+    expect(() => new Combatant("勇者", 100, 20, -5)).toThrow(
+      "defense cannot be negative",
+    );
+  });
 });
 
 test("攻撃者のstrがターゲットのhpより小さい場合、str分の攻撃をする", () => {
@@ -32,7 +36,6 @@ test("攻撃者のstrがターゲットのhpより小さい場合、str分の攻
   const slime = new Combatant("スライム", 30, 5, 0);
 
   hero.attack(slime);
-
   expect(slime.hp).toBe(10);
 });
 
@@ -55,7 +58,6 @@ test("死んだ戦闘キャラは攻撃できない", () => {
 
   boss.attack(hero);
   boss.attack(hero);
-
   expect(() => hero.attack(boss)).toThrow("attacker is dead");
 });
 
