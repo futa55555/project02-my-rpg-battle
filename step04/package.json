@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "types": [
+      "jest",
+      "node"
+    ]
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.2.0",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.12",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  }
+}
