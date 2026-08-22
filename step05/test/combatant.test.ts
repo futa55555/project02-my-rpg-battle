@@ -37,7 +37,7 @@ test("攻撃者のstrがターゲットのhpより小さい場合、str分の攻
   const hero = new Combatant("勇者", 100, 20, 5);
   const slime = new Combatant("スライム", 30, 5, 0);
 
-  hero.attack(slime);
+  hero.basicAttack(slime);
   expect(slime.hp).toBe(10);
 });
 
@@ -45,29 +45,29 @@ test("攻撃者のstrがターゲットのhpより大きい場合、hpは0で止
   const hero = new Combatant("勇者", 100, 20, 5);
   const slime = new Combatant("スライム", 30, 5, 0);
 
-  hero.attack(slime);
+  hero.basicAttack(slime);
   expect(slime.hp).toBe(10);
 
-  hero.attack(slime);
+  hero.basicAttack(slime);
   expect(slime.hp).toBe(0);
 
-  expect(() => hero.attack(slime)).toThrow(new Error("target is dead"));
+  expect(() => hero.basicAttack(slime)).toThrow(new Error("target is dead"));
 });
 
 test("死んだ戦闘キャラは攻撃できない", () => {
   const hero = new Combatant("勇者", 100, 20, 5);
   const boss = new Combatant("ボス", 300, 80, 0);
 
-  boss.attack(hero);
-  boss.attack(hero);
-  expect(() => hero.attack(boss)).toThrow("attacker is dead");
+  boss.basicAttack(hero);
+  boss.basicAttack(hero);
+  expect(() => hero.basicAttack(boss)).toThrow("dead combatant cannot act");
 });
 
 test("防御力の分だけダメージを減らす", () => {
   const hero = new Combatant("勇者", 100, 20, 5);
   const orc = new Combatant("オーク", 30, 10, 0);
 
-  orc.attack(hero);
+  orc.basicAttack(hero);
   expect(hero.hp).toBe(95);
 });
 
@@ -75,7 +75,7 @@ test("防御力が相手の攻撃力より高いとき、ダメージを受け�
   const hero = new Combatant("勇者", 100, 20, 10);
   const slime = new Combatant("スライム", 30, 5, 0);
 
-  slime.attack(hero);
+  slime.basicAttack(hero);
   expect(hero.hp).toBe(100);
 });
 

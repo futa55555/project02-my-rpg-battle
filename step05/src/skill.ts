@@ -1,24 +1,24 @@
 export class Skill {
   private _name: string;
-  private _damage: number;
+  private _damageValue: number;
 
-  constructor(name: string, damage: number) {
+  constructor(name: string, damageValue: number) {
     if (name.trim() === "") {
       throw new Error("name cannot be empty");
     }
     this._name = name;
 
-    if (damage <= 0) {
-      throw new Error("damage must be greater than 0");
+    if (damageValue <= 0) {
+      throw new Error("damage value must be greater than 0");
     }
-    this._damage = damage;
+    this._damageValue = damageValue;
   }
 
   get name(): string {
     return this._name;
   }
-  get damage(): number {
-    return this._damage;
+  get damageValue(): number {
+    return this._damageValue;
   }
 
   isSameSkill(skill: Skill): boolean {

@@ -1,6 +1,11 @@
 import { Magic } from "./magic";
 import { Skill } from "./skill";
 
+type Damage = {
+  type: "physical" | "magical";
+  value: number;
+};
+
 export class Combatant {
   private _name: string;
   private _hp: number;
@@ -53,88 +58,69 @@ export class Combatant {
     return this._skills;
   }
 
-  attack(target: Combatant): void {
+  private act(): void {
     if (!this.isAlive()) {
-      throw new Error("attacker is dead");
+      throw new Error("dead combatant cannot act");
     }
+  }
+
+  private attack(target: Combatant, damage: Damage): void {
+    this.act();
+
     if (!target.isAlive()) {
       throw new Error("target is dead");
     }
 
-    const damage = this._strength;
     target.takeDamage(damage);
   }
 
-  useMagic(magic: Magic, target: Combatant): void {
-    if (!this.isAlive()) {
-      throw new Error("attacker is dead");
-    }
-    if (!target.isAlive()) {
-      throw new Error("target is dead");
-    }
+  basicAttack(target: Combatant): void {
+    const damage: Damage = { type: "physical", value: this._strength };
+    this.attack(target, damage);
+  }
 
+  useMagic(magic: Magic, target: Combatant): void {
     if (!this.hasLearnedMagic(magic)) {
       throw new Error("this magic not learned yet");
     }
 
-    const damage = magic.damage;
-    target.takeMagicDamage(damage);
+    const damage: Damage = { type: "magical", value: magic.damageValue };
+    this.attack(target, damage);
   }
 
   useSkill(skill: Skill, target: Combatant): void {
-    if (!this.isAlive()) {
-      throw new Error("attacker is dead");
-    }
-    if (!target.isAlive()) {
-      throw new Error("target is dead");
-    }
-
     if (!this.hasLearnedSkill(skill)) {
       throw new Error("this skill not learned yet");
     }
 
-    const damage = skill.damage + this._strength;
-    target.takeSkillDamage(damage);
+    const damage: Damage = {
+      type: "physical",
+      value: this._strength + skill.damageValue,
+    };
+    this.attack(target, damage);
   }
 
-  private takeDamage(damage: number): void {
+  private takeDamage(damage: Damage): void {
     if (!this.isAlive()) {
       throw new Error("already dead");
     }
-    if (damage < 0) {
-      throw new Error("damage cannot be negative");
+    if (damage.value <= 0) {
+      throw new Error("damage must be greater than 0");
     }
 
-    const defensedDamage = Math.max(damage - this._defense, 0);
-
-    const actualDamage = Math.min(defensedDamage, this._hp);
-    this._hp -= actualDamage;
+    const calculatedDamage = this.calculateDamage(damage);
+    this._hp -= Math.min(calculatedDamage, this._hp);
   }
 
-  private takeMagicDamage(damage: number): void {
-    if (!this.isAlive()) {
-      throw new Error("already dead");
+  private calculateDamage(damage: Damage): number {
+    switch (damage.type) {
+      case "physical":
+        return Math.max(damage.value - this._defense, 0);
+      case "magical":
+        return damage.value;
+      default:
+        return 0;
     }
-    if (damage < 0) {
-      throw new Error("damage cannot be negative");
-    }
-
-    const actualDamage = Math.min(damage, this._hp);
-    this._hp -= actualDamage;
-  }
-
-  private takeSkillDamage(damage: number): void {
-    if (!this.isAlive()) {
-      throw new Error("already dead");
-    }
-    if (damage < 0) {
-      throw new Error("damage cannot be negative");
-    }
-
-    const defensedDamage = Math.max(damage - this._defense, 0);
-
-    const actualDamage = Math.min(defensedDamage, this._hp);
-    this._hp -= actualDamage;
   }
 
   learnMagic(magic: Magic): void {
