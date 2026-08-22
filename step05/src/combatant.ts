@@ -1,7 +1,8 @@
-import { Magic } from "./magic";
-import { Skill } from "./skill";
+import type { Action } from "./action";
+import type { Magic } from "./magic";
+import type { Skill } from "./skill";
 
-type Damage = {
+export type Damage = {
   type: "physical" | "magical";
   value: number;
 };
@@ -58,58 +59,20 @@ export class Combatant {
     return this._skills;
   }
 
-  private act(): void {
-    if (!this.isAlive()) {
-      throw new Error("dead combatant cannot act");
-    }
+  act(action: Action): void {
+    this.assertCanAct();
+
+    action.execute(this);
   }
 
-  private attack(target: Combatant, damage: Damage): void {
-    this.act();
-
-    if (!target.isAlive()) {
-      throw new Error("target is dead");
-    }
-
-    target.takeDamage(damage);
-  }
-
-  basicAttack(target: Combatant): void {
-    const damage: Damage = { type: "physical", value: this._strength };
-    this.attack(target, damage);
-  }
-
-  useMagic(magic: Magic, target: Combatant): void {
-    if (!this.hasLearnedMagic(magic)) {
-      throw new Error("this magic not learned yet");
-    }
-
-    const damage: Damage = { type: "magical", value: magic.damageValue };
-    this.attack(target, damage);
-  }
-
-  useSkill(skill: Skill, target: Combatant): void {
-    if (!this.hasLearnedSkill(skill)) {
-      throw new Error("this skill not learned yet");
-    }
-
-    const damage: Damage = {
-      type: "physical",
-      value: this._strength + skill.damageValue,
-    };
-    this.attack(target, damage);
-  }
-
-  private takeDamage(damage: Damage): void {
-    if (!this.isAlive()) {
-      throw new Error("already dead");
-    }
-    if (damage.value <= 0) {
-      throw new Error("damage must be greater than 0");
-    }
-
+  takeDamage(damage: Damage): void {
     const calculatedDamage = this.calculateDamage(damage);
-    this._hp -= Math.min(calculatedDamage, this._hp);
+
+    if (calculatedDamage < this._hp) {
+      this._hp -= calculatedDamage;
+    } else {
+      this._hp = 0;
+    }
   }
 
   private calculateDamage(damage: Damage): number {
@@ -139,19 +102,29 @@ export class Combatant {
     this._skills.push(skill);
   }
 
-  private hasLearnedMagic(magic: Magic): boolean {
+  hasLearnedMagic(magic: Magic): boolean {
     return this._magics.some((_magic) => {
       return _magic.isSameMagic(magic);
     });
   }
 
-  private hasLearnedSkill(skill: Skill): boolean {
+  hasLearnedSkill(skill: Skill): boolean {
     return this._skills.some((_skill) => {
       return _skill.isSameSkill(skill);
     });
   }
 
+  assertCanAct(): void {
+    if (!this.canAct()) {
+      throw new Error("dead combatant cannot act");
+    }
+  }
+
   isAlive(): boolean {
     return this._hp > 0;
+  }
+
+  private canAct(): boolean {
+    return this.isAlive();
   }
 }

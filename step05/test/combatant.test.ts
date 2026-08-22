@@ -1,3 +1,4 @@
+import { BasicAttack, MagicAttack, SkillAttack } from "../src/action";
 import { Combatant } from "../src/combatant";
 import { Magic } from "../src/magic";
 import { Skill } from "../src/skill";
@@ -33,49 +34,37 @@ describe("作成系", () => {
   });
 });
 
-test("攻撃者のstrがターゲットのhpより小さい場合、str分の攻撃をする", () => {
+test("通常攻撃できる", () => {
   const hero = new Combatant("勇者", 100, 20, 5);
-  const slime = new Combatant("スライム", 30, 5, 0);
+  const orc = new Combatant("オーク", 45, 10, 5);
 
-  hero.basicAttack(slime);
-  expect(slime.hp).toBe(10);
+  hero.act(new BasicAttack(orc));
+  expect(orc.hp).toBe(30);
 });
 
-test("攻撃者のstrがターゲットのhpより大きい場合、hpは0で止まる", () => {
+test("hpが0の戦闘キャラは行動できない", () => {
   const hero = new Combatant("勇者", 100, 20, 5);
+
+  hero.takeDamage({ type: "physical", value: 150 });
+  expect(hero.hp).toBe(0);
+
   const slime = new Combatant("スライム", 30, 5, 0);
-
-  hero.basicAttack(slime);
-  expect(slime.hp).toBe(10);
-
-  hero.basicAttack(slime);
-  expect(slime.hp).toBe(0);
-
-  expect(() => hero.basicAttack(slime)).toThrow(new Error("target is dead"));
-});
-
-test("死んだ戦闘キャラは攻撃できない", () => {
-  const hero = new Combatant("勇者", 100, 20, 5);
-  const boss = new Combatant("ボス", 300, 80, 0);
-
-  boss.basicAttack(hero);
-  boss.basicAttack(hero);
-  expect(() => hero.basicAttack(boss)).toThrow("dead combatant cannot act");
+  expect(() => hero.act(new BasicAttack(slime))).toThrow(
+    "dead combatant cannot act",
+  );
 });
 
 test("防御力の分だけダメージを減らす", () => {
   const hero = new Combatant("勇者", 100, 20, 5);
-  const orc = new Combatant("オーク", 30, 10, 0);
 
-  orc.basicAttack(hero);
-  expect(hero.hp).toBe(95);
+  hero.takeDamage({ type: "physical", value: 25 });
+  expect(hero.hp).toBe(80);
 });
 
 test("防御力が相手の攻撃力より高いとき、ダメージを受けない", () => {
   const hero = new Combatant("勇者", 100, 20, 10);
-  const slime = new Combatant("スライム", 30, 5, 0);
 
-  slime.basicAttack(hero);
+  hero.takeDamage({ type: "physical", value: 5 });
   expect(hero.hp).toBe(100);
 });
 
@@ -108,10 +97,10 @@ describe("魔法系", () => {
 
     hero.learnMagic(mera);
 
-    hero.useMagic(mera, slime);
+    hero.act(new MagicAttack(slime, mera));
     expect(slime.hp).toBe(15);
 
-    hero.useMagic(mera, orc);
+    hero.act(new MagicAttack(orc, mera));
     expect(orc.hp).toBe(30);
   });
 
@@ -120,7 +109,7 @@ describe("魔法系", () => {
     const slime = new Combatant("スライム", 30, 5, 0);
     const mera = new Magic("メラ", 15);
 
-    expect(() => hero.useMagic(mera, slime)).toThrow(
+    expect(() => hero.act(new MagicAttack(slime, mera))).toThrow(
       "this magic not learned yet",
     );
   });
@@ -156,7 +145,7 @@ describe("スキル系", () => {
 
     hero.learnSkill(tackle);
 
-    hero.useSkill(tackle, orc);
+    hero.act(new SkillAttack(orc, tackle));
     expect(orc.hp).toBe(20);
   });
 
@@ -165,7 +154,7 @@ describe("スキル系", () => {
     const slime = new Combatant("スライム", 30, 5, 0);
     const tackle = new Skill("体当たり", 10);
 
-    expect(() => hero.useSkill(tackle, slime)).toThrow(
+    expect(() => hero.act(new SkillAttack(slime, tackle))).toThrow(
       "this skill not learned yet",
     );
   });
