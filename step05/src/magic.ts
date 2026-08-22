@@ -1,5 +1,3 @@
-import { Combatant } from "./combatant";
-
 export class Magic {
   private _name: string;
   private _damageValue: number;
