@@ -182,10 +182,10 @@ describe("魔法系", () => {
     hero.learnMagic(fireBall);
 
     hero.act(new MagicAttack(slime, fireBall));
-    expect(slime.hp).toBe(15);
+    expect(slime.hp).toBe(10);
 
     hero.act(new MagicAttack(orc, fireBall));
-    expect(orc.hp).toBe(55);
+    expect(orc.hp).toBe(50);
   });
 
   test("覚えてない魔法は使うことができない", () => {
@@ -209,7 +209,7 @@ describe("魔法系", () => {
 
     hero.learnMagic(heal);
     hero.act(new Heal(hero, heal));
-    expect(hero.hp).toBe(90);
+    expect(hero.hp).toBe(95);
   });
 });
 

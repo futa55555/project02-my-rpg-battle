@@ -69,7 +69,7 @@ export class MagicAttack extends Attack {
   protected calculateDamage(actor: Combatant): Damage {
     const damage: Damage = {
       type: "magical",
-      value: this._magic.power,
+      value: actor.stats.magicAttack + this._magic.power,
     };
     return damage;
   }
@@ -115,6 +115,6 @@ export class Heal extends Action {
 
     actor.assertHasLearnedMagic(this._magic);
 
-    this._target.healDamage(this._magic.power);
+    this._target.healDamage(actor.stats.healingPower + this._magic.power);
   }
 }
