@@ -79,7 +79,11 @@ export class Combatant {
   }
 
   healDamage(power: number): void {
-    this._hp += power;
+    if (power < this._stats.maxHp - this._hp) {
+      this._hp += power;
+    } else {
+      this._hp = this._stats.maxHp;
+    }
   }
 
   learnMagic(magic: Magic): void {

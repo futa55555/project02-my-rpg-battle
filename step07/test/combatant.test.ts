@@ -211,6 +211,16 @@ describe("魔法系", () => {
     hero.act(new Heal(hero, heal));
     expect(hero.hp).toBe(95);
   });
+
+  test("回復魔法で回復できるが、最大hpを超えることはない", () => {
+    const hero = createHero();
+    const orc = createOrc();
+    const heal = createHeal();
+
+    hero.learnMagic(heal);
+    hero.act(new Heal(hero, heal));
+    expect(hero.hp).toBe(100);
+  });
 });
 
 describe("スキル系", () => {
