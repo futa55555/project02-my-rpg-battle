@@ -1,8 +1,9 @@
-export abstract class Magic {
+export abstract class Magic<T = unknown> {
+  declare private readonly _brand: T;
   private _name: string;
   private _power: number;
 
-  protected constructor(name: string, power: number) {
+  constructor(name: string, power: number) {
     if (name.trim() === "") {
       throw new Error("name cannot be empty");
     }
@@ -26,14 +27,6 @@ export abstract class Magic {
   }
 }
 
-export class AttackMagic extends Magic {
-  constructor(name: string, power: number) {
-    super(name, power);
-  }
-}
+export class AttackMagic extends Magic<"attack"> {}
 
-export class HealMagic extends Magic {
-  constructor(name: string, power: number) {
-    super(name, power);
-  }
-}
+export class HealMagic extends Magic<"heal"> {}

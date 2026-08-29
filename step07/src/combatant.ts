@@ -52,8 +52,6 @@ export class Combatant {
   }
 
   act(action: Action): void {
-    this.assertCanAct();
-
     action.execute(this);
   }
 

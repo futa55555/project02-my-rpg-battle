@@ -1,5 +1,4 @@
 import { Character } from "../src/character";
-import { Equipment } from "../src/equipment";
 import { type Stats } from "../src/stats";
 
 function createHero(): Character {
@@ -15,16 +14,16 @@ function createHero(): Character {
   return new Character("勇者", stats);
 }
 
-function createHeroSword(): Equipment {
-  return new Equipment("勇者の剣", "weapon");
+function createHeroSword(): Weapon {
+  return new Weapon("勇者の剣", { strength: 5 });
 }
 
-function createHeroArmor(): Equipment {
-  return new Equipment("勇者の鎧", "armor");
+function createHeroArmor(): Armor {
+  return new Armor("勇者の鎧", { defense: 5 });
 }
 
-function createDemonSword(): Equipment {
-  return new Equipment("悪魔の剣", "weapon");
+function createDemonSword(): Weapon {
+  return new Weapon("悪魔の剣", { strength: 5 });
 }
 
 test("装備の初期値は空", () => {

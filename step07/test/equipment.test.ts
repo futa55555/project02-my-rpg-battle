@@ -3,8 +3,9 @@ import { Equipment, type EquipmentType } from "../src/equipment";
 function createMockEquipment(
   name = "モック",
   type: EquipmentType = "weapon",
+  statsBonus = { strength: 1 },
 ): Equipment {
-  return new Equipment(name, type);
+  return new Equipment(name, type, statsBonus);
 }
 
 describe("作成系", () => {

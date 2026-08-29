@@ -1,43 +1,29 @@
 import { Combatant } from "./combatant";
-import { type Equipment, type EquipmentType } from "./equipment";
+import { EquipmentByKind, type Equipment } from "./equipment";
+import { type EquipmentSlot } from "./equipmentSlot";
+import { createEquipmentSlots, type EquipmentSlots } from "./equipmentSlots";
 import { type Stats } from "./stats";
 
 export class Character extends Combatant {
-  private readonly _equipments: Equipment[];
+  private readonly _equipmentSlots: EquipmentSlots;
 
   constructor(name: string, stats: Stats) {
     super(name, stats);
 
-    this._equipments = [];
+    this._equipmentSlots = createEquipmentSlots();
   }
 
-  get equipments(): readonly Equipment[] {
-    return this._equipments;
+  get equipmentSlots(): EquipmentSlots {
+    return this._equipmentSlots;
   }
 
   equip(equipment: Equipment): void {
-    if (this.hasEquipmentOfType(equipment.type)) {
-      throw new Error("this type already equipped");
-    }
-
-    this._equipments.push(equipment);
+    equipment.equipTo(this._equipmentSlots);
   }
 
-  unequip(type: EquipmentType): void {
-    if (!this.hasEquipmentOfType(type)) {
-      throw new Error("this type not equipped yet");
-    }
-
-    const idx = this._equipments.findIndex((equipment) => {
-      return equipment.type === type;
-    });
-
-    this._equipments.splice(idx, 1);
-  }
-
-  private hasEquipmentOfType(type: EquipmentType): boolean {
-    return this._equipments.some((_equipment) => {
-      return _equipment.type === type;
-    });
+  unequip<Kind extends keyof EquipmentByKind>(
+    slot: EquipmentSlot<EquipmentByKind[Kind]>,
+  ): void {
+    slot.unequip();
   }
 }
