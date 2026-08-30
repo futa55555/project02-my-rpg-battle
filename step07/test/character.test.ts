@@ -2,93 +2,95 @@ import { Character } from "../src/character";
 import { Armor, Weapon } from "../src/equipment";
 import { BaseStats, BonusStats } from "../src/stats";
 
-function createMockBonusStats(): BonusStats {
-  return new BonusStats({});
-}
-
-function createHero(): Character {
+function createMockCharacter(): Character {
   const baseStats = new BaseStats({
-    maxHp: 100,
-    maxMp: 30,
-    strength: 20,
-    defense: 10,
-    magicAttack: 5,
-    healingPower: 5,
+    maxHp: 20,
+    maxMp: 8,
+    strength: 5,
+    defense: 5,
+    magicAttack: 2,
+    healingPower: 2,
   });
 
-  return new Character("勇者", baseStats);
+  return new Character("モックキャラクター", baseStats);
 }
 
-function createHeroSword(): Weapon {
-  return new Weapon("勇者の剣", createMockBonusStats());
+function createMockWeapon(name: string = "モック武器"): Weapon {
+  return new Weapon(name, new BonusStats({ strength: 1 }));
 }
 
-function createHeroArmor(): Armor {
-  return new Armor("勇者の鎧", createMockBonusStats());
-}
-
-function createDemonSword(): Weapon {
-  return new Weapon("悪魔の剣", createMockBonusStats());
+function createMockArmor(): Armor {
+  return new Armor("モック鎧", new BonusStats({ defense: 1 }));
 }
 
 test("装備の初期値は空", () => {
-  const hero = createHero();
-  expect(hero.equipmentSlots.weapon.equipment).toBeNull();
-  expect(hero.equipmentSlots.armor.equipment).toBeNull();
+  const mockCharacter = createMockCharacter();
+  expect(mockCharacter.equipmentSlots.weapon.equipment).toBeNull();
+  expect(mockCharacter.equipmentSlots.armor.equipment).toBeNull();
 });
 
 test("まだ何もつけていないとき、装備できる", () => {
-  const hero = createHero();
-  const heroSword = createHeroSword();
+  const mockCharacter = createMockCharacter();
+  const mockWeapon = createMockWeapon();
 
-  hero.equip(heroSword);
+  expect(mockCharacter.calculatedStats.strength).toBe(
+    mockCharacter.baseStats.strength,
+  );
 
-  expect(hero.equipmentSlots.weapon.equipment).toBe(heroSword);
-  expect(hero.equipmentSlots.armor.equipment).toBeNull();
+  mockCharacter.equip(mockWeapon);
+
+  expect(mockCharacter.equipmentSlots.weapon.equipment).toBe(mockWeapon);
+  expect(mockCharacter.equipmentSlots.armor.equipment).toBeNull();
+
+  expect(mockCharacter.calculatedStats.strength).toBe(
+    mockCharacter.baseStats.strength + mockWeapon.bonusStats.strength,
+  );
 });
 
 test("すでに同一タイプを装備しているとき、装備できない", () => {
-  const hero = createHero();
-  const heroSword = createHeroSword();
-  const demonSword = createDemonSword();
+  const mockCharacter = createMockCharacter();
+  const mockWeapon = createMockWeapon();
+  const differentWeapon = createMockWeapon("違う武器");
 
-  hero.equip(heroSword);
+  mockCharacter.equip(mockWeapon);
 
-  expect(() => hero.equip(demonSword)).toThrow("already equipped");
+  expect(() => mockCharacter.equip(differentWeapon)).toThrow(
+    "already equipped",
+  );
 });
 
 test("異なるタイプの装備は、装備できる", () => {
-  const hero = createHero();
-  const heroSword = createHeroSword();
-  const heroArmor = createHeroArmor();
+  const mockCharacter = createMockCharacter();
+  const mockWeapon = createMockWeapon();
+  const mockArmor = createMockArmor();
 
-  hero.equip(heroSword);
-  hero.equip(heroArmor);
+  mockCharacter.equip(mockWeapon);
+  mockCharacter.equip(mockArmor);
 
-  expect(hero.equipmentSlots.weapon.equipment).toBe(heroSword);
-  expect(hero.equipmentSlots.armor.equipment).toBe(heroArmor);
+  expect(mockCharacter.equipmentSlots.weapon.equipment).toBe(mockWeapon);
+  expect(mockCharacter.equipmentSlots.armor.equipment).toBe(mockArmor);
 });
 
 test("装備した装備を外すことができる", () => {
-  const hero = createHero();
-  const heroSword = createHeroSword();
-  const heroArmor = createHeroArmor();
+  const mockCharacter = createMockCharacter();
+  const mockWeapon = createMockWeapon();
+  const mockArmor = createMockArmor();
 
-  hero.equip(heroSword);
-  hero.equip(heroArmor);
+  mockCharacter.equip(mockWeapon);
+  mockCharacter.equip(mockArmor);
 
-  hero.unequip(hero.equipmentSlots.weapon);
+  mockCharacter.unequip(mockCharacter.equipmentSlots.weapon);
 
-  expect(hero.equipmentSlots.weapon.equipment).toBeNull();
-  expect(hero.equipmentSlots.armor.equipment).toBe(heroArmor);
+  expect(mockCharacter.equipmentSlots.weapon.equipment).toBeNull();
+  expect(mockCharacter.equipmentSlots.armor.equipment).toBe(mockArmor);
 });
 
 test("装備していない装備は外すことができない", () => {
-  const hero = createHero();
-  const heroSword = createHeroSword();
-  hero.equip(heroSword);
+  const mockCharacter = createMockCharacter();
+  const mockWeapon = createMockWeapon();
+  mockCharacter.equip(mockWeapon);
 
-  expect(() => hero.unequip(hero.equipmentSlots.armor)).toThrow(
-    "not equipped yet",
-  );
+  expect(() =>
+    mockCharacter.unequip(mockCharacter.equipmentSlots.armor),
+  ).toThrow("not equipped yet");
 });

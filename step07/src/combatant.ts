@@ -1,7 +1,7 @@
 import { type Action } from "./action";
 import { type Magic } from "./magic";
 import { type Skill } from "./skill";
-import { type Stats } from "./stats";
+import { type CalculatedStats, type BaseStats } from "./stats";
 
 export type Damage = {
   type: "physical" | "magical";
@@ -10,22 +10,22 @@ export type Damage = {
 
 export class Combatant {
   private _name: string;
-  protected _stats: Stats;
+  protected _baseStats: BaseStats;
   private _hp: number;
   private _mp: number;
   private readonly _magics: Magic[];
   private readonly _skills: Skill[];
 
-  constructor(name: string, stats: Stats) {
+  constructor(name: string, baseStats: BaseStats) {
     if (name.trim() === "") {
       throw new Error("name cannot be empty");
     }
     this._name = name;
 
-    this._stats = stats;
+    this._baseStats = baseStats;
 
-    this._hp = stats.maxHp;
-    this._mp = stats.maxMp;
+    this._hp = baseStats.maxHp;
+    this._mp = baseStats.maxMp;
 
     this._magics = [];
     this._skills = [];
@@ -34,8 +34,11 @@ export class Combatant {
   get name(): string {
     return this._name;
   }
-  get calculatedStats(): Stats {
-    return this._stats;
+  get baseStats(): BaseStats {
+    return this._baseStats;
+  }
+  get calculatedStats(): CalculatedStats {
+    return this._baseStats;
   }
   get hp(): number {
     return this._hp;
@@ -63,7 +66,7 @@ export class Combatant {
   private calculateDamage(damage: Damage): number {
     switch (damage.type) {
       case "physical":
-        return Math.max(damage.value - this.calculatedStats.defense, 0);
+        return Math.max(damage.value - this.baseStats.defense, 0);
       case "magical":
         return damage.value;
       default:
@@ -138,6 +141,6 @@ export class Combatant {
   }
 
   private clampHp(value: number): number {
-    return Math.max(0, Math.min(value, this._stats.maxHp));
+    return Math.max(0, Math.min(value, this._baseStats.maxHp));
   }
 }

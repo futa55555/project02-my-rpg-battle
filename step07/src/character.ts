@@ -2,7 +2,7 @@ import { Combatant } from "./combatant";
 import { EquipmentByKind, type Equipment } from "./equipment";
 import { type EquipmentSlot } from "./equipmentSlot";
 import { EquipmentSlots } from "./equipmentSlots";
-import { type Stats } from "./stats";
+import { BonusStats, CalculatedStats, type Stats } from "./stats";
 
 export class Character extends Combatant {
   private readonly _equipmentSlots: EquipmentSlots;
@@ -16,8 +16,11 @@ export class Character extends Combatant {
   get equipmentSlots(): EquipmentSlots {
     return this._equipmentSlots;
   }
-  get calculatedStats(): Stats {
-    return this._stats;
+  get bonusStats(): BonusStats {
+    return this._equipmentSlots.totalStatsBonus;
+  }
+  get calculatedStats(): CalculatedStats {
+    return this._baseStats.add(this.bonusStats);
   }
 
   equip(equipment: Equipment): void {

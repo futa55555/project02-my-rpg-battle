@@ -2,7 +2,7 @@ import { BasicAttack, Heal, MagicAttack, SkillAttack } from "../src/action";
 import { Combatant } from "../src/combatant";
 import { AttackMagic, HealMagic } from "../src/magic";
 import { Skill } from "../src/skill";
-import { BaseStats, Stats } from "../src/stats";
+import { BaseStats } from "../src/stats";
 
 const mockBaseStats = new BaseStats({
   maxHp: 1,
@@ -15,12 +15,12 @@ const mockBaseStats = new BaseStats({
 
 function createHero(): Combatant {
   const baseStats = new BaseStats({
-    maxHp: 100,
-    maxMp: 30,
-    strength: 20,
-    defense: 10,
-    magicAttack: 5,
-    healingPower: 5,
+    maxHp: 20,
+    maxMp: 8,
+    strength: 5,
+    defense: 5,
+    magicAttack: 2,
+    healingPower: 2,
   });
 
   return new Combatant("勇者", baseStats);
@@ -28,28 +28,15 @@ function createHero(): Combatant {
 
 function createSlime(): Combatant {
   const baseStats = new BaseStats({
-    maxHp: 30,
-    maxMp: 5,
-    strength: 15,
-    defense: 5,
-    magicAttack: 2,
-    healingPower: 2,
+    maxHp: 5,
+    maxMp: 2,
+    strength: 3,
+    defense: 2,
+    magicAttack: 0,
+    healingPower: 0,
   });
 
   return new Combatant("スライム", baseStats);
-}
-
-function createOrc(): Combatant {
-  const baseStats = new BaseStats({
-    maxHp: 70,
-    maxMp: 10,
-    strength: 20,
-    defense: 5,
-    magicAttack: 5,
-    healingPower: 5,
-  });
-
-  return new Combatant("オーク", baseStats);
 }
 
 function createMockCombatant(
@@ -59,16 +46,16 @@ function createMockCombatant(
   return new Combatant(name, baseStats);
 }
 
-function createFireBall(): AttackMagic {
-  return new AttackMagic("ファイアーボール", 15);
+function createMockAttackMagic(): AttackMagic {
+  return new AttackMagic("モック攻撃魔法", 2);
 }
 
-function createHeal(): HealMagic {
-  return new HealMagic("ヒール", 10);
+function createMockHealMagic(): HealMagic {
+  return new HealMagic("モック回復魔法", 2);
 }
 
-function createTackle(): Skill {
-  return new Skill("体当たり", 10);
+function createMockSkill(): Skill {
+  return new Skill("モックスキル", 2);
 }
 
 describe("作成系", () => {
@@ -136,76 +123,80 @@ describe("作成系", () => {
   });
 });
 
-test("通常攻撃できる", () => {
-  const hero = createHero();
-  const orc = createOrc();
+describe("通常攻撃系", () => {
+  test("通常攻撃できる", () => {
+    const hero = createHero();
+    const slime = createSlime();
 
-  hero.act(new BasicAttack(orc));
-  expect(orc.hp).toBe(55);
-});
+    hero.act(new BasicAttack(slime));
+    expect(slime.hp).toBe(2);
+  });
 
-test("攻撃を受けてもhpは0を下回らない", () => {
-  const hero = createHero();
-  const orc = createOrc();
+  test("攻撃を受けてもhpは0を下回らない", () => {
+    const hero = createHero();
+    const slime = createSlime();
 
-  hero.act(new BasicAttack(orc));
-  expect(orc.hp).toBe(55);
-  hero.act(new BasicAttack(orc));
-  expect(orc.hp).toBe(40);
-  hero.act(new BasicAttack(orc));
-  expect(orc.hp).toBe(25);
-  hero.act(new BasicAttack(orc));
-  expect(orc.hp).toBe(10);
-  hero.act(new BasicAttack(orc));
-  expect(orc.hp).toBe(0);
-});
+    hero.act(new BasicAttack(slime));
+    expect(slime.hp).toBe(2);
+    hero.act(new BasicAttack(slime));
+    expect(slime.hp).toBe(0);
+  });
 
-test("hpが0の戦闘キャラは行動できない", () => {
-  const hero = createHero();
+  test("hpが0の戦闘キャラは行動できない", () => {
+    const hero = createHero();
+    const slime = createSlime();
 
-  hero.takeDamage({ type: "physical", value: 150 });
-  expect(hero.hp).toBe(0);
+    hero.act(new BasicAttack(slime));
+    hero.act(new BasicAttack(slime));
+    expect(slime.hp).toBe(0);
 
-  const slime = createSlime();
-  expect(() => hero.act(new BasicAttack(slime))).toThrow(
-    "dead combatant cannot act",
-  );
-});
+    expect(() => slime.act(new BasicAttack(hero))).toThrow(
+      "dead combatant cannot act",
+    );
+  });
 
-test("防御力の分だけダメージを減らす", () => {
-  const hero = createHero();
-  const slime = createSlime();
+  test("hpが0の戦闘キャラを攻撃できない", () => {
+    const hero = createHero();
+    const slime = createSlime();
 
-  slime.act(new BasicAttack(hero));
-  expect(hero.hp).toBe(95);
-});
+    hero.act(new BasicAttack(slime));
+    hero.act(new BasicAttack(slime));
+    expect(slime.hp).toBe(0);
 
-test("防御力が相手の攻撃力より高いとき、ダメージを受けない", () => {
-  const hero = createHero();
+    expect(() => hero.act(new BasicAttack(slime))).toThrow(
+      "target combatant is dead",
+    );
+  });
 
-  hero.takeDamage({ type: "physical", value: 5 });
-  expect(hero.hp).toBe(100);
+  test("防御力が相手の攻撃力より高いとき、ダメージを受けない", () => {
+    const hero = createHero();
+    const slime = createSlime();
+
+    expect(hero.hp).toBe(20);
+    slime.act(new BasicAttack(hero));
+    expect(hero.hp).toBe(20);
+  });
 });
 
 describe("魔法系", () => {
   test("魔法を覚えることができる", () => {
     const hero = createHero();
-    const fireBall = createFireBall();
+    const mockAttackMagic = createMockAttackMagic();
 
-    hero.learnMagic(fireBall);
+    hero.learnMagic(mockAttackMagic);
 
     expect(hero.magics.length).toBe(1);
-    expect(hero.magics).toContain(fireBall);
+    expect(hero.magics).toContain(mockAttackMagic);
   });
 
   test("すでに覚えた魔法と同名の魔法は覚えることができない", () => {
     const hero = createHero();
-    const fireBall1 = createFireBall();
-    const fireBall2 = createFireBall();
+    const mockAttackMagic = createMockAttackMagic();
+    const copiedMockAttackMagic = createMockAttackMagic();
 
-    hero.learnMagic(fireBall1);
+    hero.learnMagic(mockAttackMagic);
 
-    expect(() => hero.learnMagic(fireBall2)).toThrow(
+    expect(() => hero.learnMagic(copiedMockAttackMagic)).toThrow(
       "this magic already learned",
     );
   });
@@ -213,93 +204,82 @@ describe("魔法系", () => {
   test("覚えた魔法を使って攻撃でき、防御力を貫通する", () => {
     const hero = createHero();
     const slime = createSlime();
-    const orc = createOrc();
-    const fireBall = createFireBall();
+    const mockAttackMagic = createMockAttackMagic();
 
-    hero.learnMagic(fireBall);
+    hero.learnMagic(mockAttackMagic);
 
-    hero.act(new MagicAttack(slime, fireBall));
-    expect(slime.hp).toBe(10);
-
-    hero.act(new MagicAttack(orc, fireBall));
-    expect(orc.hp).toBe(50);
+    hero.act(new MagicAttack(slime, mockAttackMagic));
+    expect(slime.hp).toBe(1);
   });
 
   test("覚えてない魔法は使うことができない", () => {
     const hero = createHero();
     const slime = createSlime();
-    const fireBall = createFireBall();
+    const mockAttackMagic = createMockAttackMagic();
 
-    expect(() => hero.act(new MagicAttack(slime, fireBall))).toThrow(
+    expect(() => hero.act(new MagicAttack(slime, mockAttackMagic))).toThrow(
       "this magic not learned yet",
     );
   });
 
   test("回復魔法で回復できる", () => {
     const hero = createHero();
-    const orc = createOrc();
-    const heal = createHeal();
+    const slime = createSlime();
+    const mockHealMagic = createMockHealMagic();
 
-    orc.act(new BasicAttack(hero));
-    orc.act(new BasicAttack(hero));
-    expect(hero.hp).toBe(80);
+    hero.act(new BasicAttack(slime));
+    expect(slime.hp).toBe(2);
 
-    hero.learnMagic(heal);
-    hero.act(new Heal(hero, heal));
-    expect(hero.hp).toBe(95);
-  });
-
-  test("回復魔法で回復できるが、最大hpを超えることはない", () => {
-    const hero = createHero();
-    const orc = createOrc();
-    const heal = createHeal();
-
-    hero.learnMagic(heal);
-    hero.act(new Heal(hero, heal));
-    expect(hero.hp).toBe(hero.calculatedStats.maxHp);
+    hero.learnMagic(mockHealMagic);
+    hero.act(new Heal(slime, mockHealMagic));
+    expect(slime.hp).toBe(5);
   });
 });
 
 describe("スキル系", () => {
   test("スキルを覚えることができる", () => {
     const hero = createHero();
-    const tackle = createTackle();
+    const mockSkill = createMockSkill();
 
-    hero.learnSkill(tackle);
+    hero.learnSkill(mockSkill);
 
     expect(hero.skills.length).toBe(1);
-    expect(hero.skills).toContain(tackle);
+    expect(hero.skills).toContain(mockSkill);
   });
 
   test("すでに覚えたスキルと同名のスキルは覚えることができない", () => {
     const hero = createHero();
-    const tackle1 = createTackle();
-    const tackle2 = createTackle();
+    const mockSkill = createMockSkill();
+    const copiedMockSkill = createMockSkill();
 
-    hero.learnSkill(tackle1);
+    hero.learnSkill(mockSkill);
 
-    expect(() => hero.learnSkill(tackle2)).toThrow(
+    expect(() => hero.learnSkill(copiedMockSkill)).toThrow(
       "this skill already learned",
     );
   });
 
   test("覚えたスキルを使って攻撃でき、防御力を貫通しない", () => {
     const hero = createHero();
-    const orc = createOrc();
-    const tackle = createTackle();
+    const slime = createSlime();
+    const mockSkill = createMockSkill();
 
-    hero.learnSkill(tackle);
+    hero.learnSkill(mockSkill);
+    slime.learnSkill(mockSkill);
 
-    hero.act(new SkillAttack(orc, tackle));
-    expect(orc.hp).toBe(45);
+    slime.act(new SkillAttack(hero, mockSkill));
+    expect(hero.hp).toBe(20);
+
+    hero.act(new SkillAttack(slime, mockSkill));
+    expect(slime.hp).toBe(0);
   });
 
   test("覚えてないスキルは使うことができない", () => {
     const hero = createHero();
     const slime = createSlime();
-    const tackle = createTackle();
+    const mockSkill = createMockSkill();
 
-    expect(() => hero.act(new SkillAttack(slime, tackle))).toThrow(
+    expect(() => hero.act(new SkillAttack(slime, mockSkill))).toThrow(
       "this skill not learned yet",
     );
   });
