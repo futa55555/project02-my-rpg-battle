@@ -111,7 +111,7 @@ export class BonusStats extends Stats {
   }
 }
 
-export class CalculatedStats extends BaseStats {
+export class CalculatedStats extends Stats {
   constructor(values: StatsValues) {
     const calculatedStats: StatsValues = {
       maxHp: values.maxHp > 0 ? values.maxHp : 1,

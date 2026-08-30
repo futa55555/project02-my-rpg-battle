@@ -66,7 +66,7 @@ export class Combatant {
   private calculateDamage(damage: Damage): number {
     switch (damage.type) {
       case "physical":
-        return Math.max(damage.value - this.baseStats.defense, 0);
+        return Math.max(damage.value - this.calculatedStats.defense, 0);
       case "magical":
         return damage.value;
       default:

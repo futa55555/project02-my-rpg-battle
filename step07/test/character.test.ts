@@ -1,8 +1,11 @@
+import { BasicAttack, Heal, MagicAttack, SkillAttack } from "../src/action";
 import { Character } from "../src/character";
 import { Armor, Weapon } from "../src/equipment";
+import { AttackMagic, HealMagic } from "../src/magic";
+import { Skill } from "../src/skill";
 import { BaseStats, BonusStats } from "../src/stats";
 
-function createMockCharacter(): Character {
+function createMockCharacter(name: string = "モックキャラクター"): Character {
   const baseStats = new BaseStats({
     maxHp: 20,
     maxMp: 8,
@@ -12,85 +15,169 @@ function createMockCharacter(): Character {
     healingPower: 2,
   });
 
-  return new Character("モックキャラクター", baseStats);
+  return new Character(name, baseStats);
 }
 
 function createMockWeapon(name: string = "モック武器"): Weapon {
-  return new Weapon(name, new BonusStats({ strength: 1 }));
+  return new Weapon(
+    name,
+    new BonusStats({ strength: 1, magicAttack: 1, healingPower: 1 }),
+  );
 }
 
 function createMockArmor(): Armor {
   return new Armor("モック鎧", new BonusStats({ defense: 1 }));
 }
 
-test("装備の初期値は空", () => {
-  const mockCharacter = createMockCharacter();
-  expect(mockCharacter.equipmentSlots.weapon.equipment).toBeNull();
-  expect(mockCharacter.equipmentSlots.armor.equipment).toBeNull();
-});
+function createMockAttackMagic(): AttackMagic {
+  return new AttackMagic("モック攻撃魔法", 2);
+}
 
-test("まだ何もつけていないとき、装備できる", () => {
-  const mockCharacter = createMockCharacter();
-  const mockWeapon = createMockWeapon();
+function createMockHealMagic(): HealMagic {
+  return new HealMagic("モック回復魔法", 2);
+}
 
-  expect(mockCharacter.calculatedStats.strength).toBe(
-    mockCharacter.baseStats.strength,
-  );
+function createMockSkill(): Skill {
+  return new Skill("モックスキル", 2);
+}
 
-  mockCharacter.equip(mockWeapon);
+describe("装備系", () => {
+  test("装備の初期値は空", () => {
+    const mockCharacter = createMockCharacter();
+    expect(mockCharacter.equipmentSlots.weapon.equipment).toBeNull();
+    expect(mockCharacter.equipmentSlots.armor.equipment).toBeNull();
+  });
 
-  expect(mockCharacter.equipmentSlots.weapon.equipment).toBe(mockWeapon);
-  expect(mockCharacter.equipmentSlots.armor.equipment).toBeNull();
+  test("まだ何もつけていないとき、装備できる", () => {
+    const mockCharacter = createMockCharacter();
+    const mockWeapon = createMockWeapon();
 
-  expect(mockCharacter.calculatedStats.strength).toBe(
-    mockCharacter.baseStats.strength + mockWeapon.bonusStats.strength,
-  );
-});
+    expect(mockCharacter.calculatedStats.strength).toBe(
+      mockCharacter.baseStats.strength,
+    );
 
-test("すでに同一タイプを装備しているとき、装備できない", () => {
-  const mockCharacter = createMockCharacter();
-  const mockWeapon = createMockWeapon();
-  const differentWeapon = createMockWeapon("違う武器");
+    mockCharacter.equip(mockWeapon);
 
-  mockCharacter.equip(mockWeapon);
+    expect(mockCharacter.equipmentSlots.weapon.equipment).toBe(mockWeapon);
+    expect(mockCharacter.equipmentSlots.armor.equipment).toBeNull();
 
-  expect(() => mockCharacter.equip(differentWeapon)).toThrow(
-    "already equipped",
-  );
-});
+    expect(mockCharacter.calculatedStats.strength).toBe(
+      mockCharacter.baseStats.strength + mockWeapon.bonusStats.strength,
+    );
+  });
 
-test("異なるタイプの装備は、装備できる", () => {
-  const mockCharacter = createMockCharacter();
-  const mockWeapon = createMockWeapon();
-  const mockArmor = createMockArmor();
+  test("すでに同一タイプを装備しているとき、装備できない", () => {
+    const mockCharacter = createMockCharacter();
+    const mockWeapon = createMockWeapon();
+    const differentWeapon = createMockWeapon("違う武器");
 
-  mockCharacter.equip(mockWeapon);
-  mockCharacter.equip(mockArmor);
+    mockCharacter.equip(mockWeapon);
 
-  expect(mockCharacter.equipmentSlots.weapon.equipment).toBe(mockWeapon);
-  expect(mockCharacter.equipmentSlots.armor.equipment).toBe(mockArmor);
-});
+    expect(() => mockCharacter.equip(differentWeapon)).toThrow(
+      "already equipped",
+    );
+  });
 
-test("装備した装備を外すことができる", () => {
-  const mockCharacter = createMockCharacter();
-  const mockWeapon = createMockWeapon();
-  const mockArmor = createMockArmor();
+  test("異なるタイプの装備は、装備できる", () => {
+    const mockCharacter = createMockCharacter();
+    const mockWeapon = createMockWeapon();
+    const mockArmor = createMockArmor();
 
-  mockCharacter.equip(mockWeapon);
-  mockCharacter.equip(mockArmor);
+    mockCharacter.equip(mockWeapon);
+    mockCharacter.equip(mockArmor);
 
-  mockCharacter.unequip(mockCharacter.equipmentSlots.weapon);
+    expect(mockCharacter.equipmentSlots.weapon.equipment).toBe(mockWeapon);
+    expect(mockCharacter.equipmentSlots.armor.equipment).toBe(mockArmor);
+  });
 
-  expect(mockCharacter.equipmentSlots.weapon.equipment).toBeNull();
-  expect(mockCharacter.equipmentSlots.armor.equipment).toBe(mockArmor);
-});
+  test("装備した装備を外すことができる", () => {
+    const mockCharacter = createMockCharacter();
+    const mockWeapon = createMockWeapon();
+    const mockArmor = createMockArmor();
 
-test("装備していない装備は外すことができない", () => {
-  const mockCharacter = createMockCharacter();
-  const mockWeapon = createMockWeapon();
-  mockCharacter.equip(mockWeapon);
+    mockCharacter.equip(mockWeapon);
+    mockCharacter.equip(mockArmor);
 
-  expect(() =>
-    mockCharacter.unequip(mockCharacter.equipmentSlots.armor),
-  ).toThrow("not equipped yet");
+    mockCharacter.unequip(mockCharacter.equipmentSlots.weapon);
+
+    expect(mockCharacter.equipmentSlots.weapon.equipment).toBeNull();
+    expect(mockCharacter.equipmentSlots.armor.equipment).toBe(mockArmor);
+  });
+
+  test("装備していない装備は外すことができない", () => {
+    const mockCharacter = createMockCharacter();
+    const mockWeapon = createMockWeapon();
+    mockCharacter.equip(mockWeapon);
+
+    expect(() =>
+      mockCharacter.unequip(mockCharacter.equipmentSlots.armor),
+    ).toThrow("not equipped yet");
+  });
+
+  test("装備による攻撃力上昇が物理攻撃に反映される", () => {
+    const mockCharacter = createMockCharacter();
+    const mockOpponentCharacter = createMockCharacter("モック敵キャラクター");
+
+    const mockWeapon = createMockWeapon();
+    mockCharacter.equip(mockWeapon);
+    mockCharacter.act(new BasicAttack(mockOpponentCharacter));
+    expect(mockOpponentCharacter.hp).toBe(19);
+
+    const mockSkill = createMockSkill();
+    mockCharacter.learnSkill(mockSkill);
+    mockCharacter.act(new SkillAttack(mockOpponentCharacter, mockSkill));
+    expect(mockOpponentCharacter.hp).toBe(16);
+  });
+
+  test("装備による防御力上昇が物理ダメージに反映される", () => {
+    const mockCharacter = createMockCharacter();
+    const mockOpponentCharacter = createMockCharacter("モック敵キャラクター");
+
+    const mockArmor = createMockArmor();
+    mockOpponentCharacter.equip(mockArmor);
+
+    mockCharacter.act(new BasicAttack(mockOpponentCharacter));
+    expect(mockOpponentCharacter.hp).toBe(20);
+
+    const mockSkill = createMockSkill();
+    mockCharacter.learnSkill(mockSkill);
+    mockCharacter.act(new SkillAttack(mockOpponentCharacter, mockSkill));
+    expect(mockOpponentCharacter.hp).toBe(19);
+  });
+
+  test("装備による攻撃魔力上昇が魔法攻撃に反映される", () => {
+    const mockCharacter = createMockCharacter();
+    const mockOpponentCharacter = createMockCharacter("モック敵キャラクター");
+
+    const mockWeapon = createMockWeapon();
+    mockCharacter.equip(mockWeapon);
+
+    const mockAttackMagic = createMockAttackMagic();
+    mockCharacter.learnMagic(mockAttackMagic);
+
+    mockCharacter.act(new MagicAttack(mockOpponentCharacter, mockAttackMagic));
+    expect(mockOpponentCharacter.hp).toBe(15);
+  });
+
+  test("装備による回復魔力上昇が回復魔法に反映される", () => {
+    const mockCharacter = createMockCharacter();
+    const mockOpponentCharacter = createMockCharacter("モック敵キャラクター");
+
+    const mockAttackMagic = createMockAttackMagic();
+    mockCharacter.learnMagic(mockAttackMagic);
+
+    mockCharacter.act(new MagicAttack(mockOpponentCharacter, mockAttackMagic));
+    expect(mockOpponentCharacter.hp).toBe(16);
+    mockCharacter.act(new MagicAttack(mockOpponentCharacter, mockAttackMagic));
+    expect(mockOpponentCharacter.hp).toBe(12);
+
+    const mockWeapon = createMockWeapon();
+    mockCharacter.equip(mockWeapon);
+
+    const mockHealMagic = createMockHealMagic();
+    mockCharacter.learnMagic(mockHealMagic);
+
+    mockCharacter.act(new Heal(mockOpponentCharacter, mockHealMagic));
+    expect(mockOpponentCharacter.hp).toBe(17);
+  });
 });
