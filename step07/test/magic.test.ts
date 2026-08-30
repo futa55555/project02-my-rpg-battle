@@ -21,7 +21,7 @@ describe("作成系", () => {
   });
 });
 
-describe("比較", () => {
+describe("比較系", () => {
   test("名前が同じ魔法は同じ", () => {
     const mockAttackMagic1 = createMockAttackMagic();
     const mockAttackMagic2 = createMockAttackMagic();

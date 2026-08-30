@@ -31,7 +31,7 @@ export class EquipmentSlot<T extends Equipment> {
 
   private assertEquipped(): void {
     if (this.isEmpty()) {
-      throw new Error("not equipped");
+      throw new Error("not equipped yet");
     }
   }
 

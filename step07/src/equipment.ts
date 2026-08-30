@@ -29,6 +29,7 @@ export abstract class Equipment {
 
   equals(equipment: Equipment): boolean {
     return (
+      this.kind === equipment.kind &&
       this._name === equipment.name &&
       this._statsBonus.equals(equipment.statsBonus)
     );

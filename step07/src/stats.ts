@@ -1,10 +1,10 @@
 export type Stats = {
-  maxHp: number;
-  maxMp: number;
-  strength: number;
-  defense: number;
-  magicAttack: number;
-  healingPower: number;
+  readonly maxHp: number;
+  readonly maxMp: number;
+  readonly strength: number;
+  readonly defense: number;
+  readonly magicAttack: number;
+  readonly healingPower: number;
 };
 
 export function validateStats(stats: Stats): void {
