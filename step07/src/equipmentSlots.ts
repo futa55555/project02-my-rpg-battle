@@ -1,16 +1,29 @@
-import { Armor, Weapon } from "./equipment";
+import type { Armor, Weapon } from "./equipment";
 import { EquipmentSlot } from "./equipmentSlot";
+import { BonusStats } from "./stats";
 
-export type EquipmentSlots = {
-  weapon: EquipmentSlot<Weapon>;
-  armor: EquipmentSlot<Armor>;
-};
+export class EquipmentSlots {
+  private _weapon: EquipmentSlot<Weapon>;
+  private _armor: EquipmentSlot<Armor>;
 
-export function createEquipmentSlots() {
-  const equipmentSlots: EquipmentSlots = {
-    weapon: new EquipmentSlot<Weapon>(),
-    armor: new EquipmentSlot<Armor>(),
-  };
+  constructor() {
+    this._weapon = new EquipmentSlot<Weapon>();
+    this._armor = new EquipmentSlot<Armor>();
+  }
 
-  return equipmentSlots;
+  get weapon(): EquipmentSlot<Weapon> {
+    return this._weapon;
+  }
+  get armor(): EquipmentSlot<Armor> {
+    return this._armor;
+  }
+
+  get totalStatsBonus(): BonusStats {
+    return BonusStats.sum(
+      [
+        this._weapon.equipment?.bonusStats,
+        this._armor.equipment?.bonusStats,
+      ].filter((stats) => stats !== undefined),
+    );
+  }
 }

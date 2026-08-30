@@ -2,58 +2,61 @@ import { BasicAttack, Heal, MagicAttack, SkillAttack } from "../src/action";
 import { Combatant } from "../src/combatant";
 import { AttackMagic, HealMagic } from "../src/magic";
 import { Skill } from "../src/skill";
-import { Stats } from "../src/stats";
+import { BaseStats, Stats } from "../src/stats";
 
-const mockStats: Stats = {
+const mockBaseStats = new BaseStats({
   maxHp: 1,
   maxMp: 1,
   strength: 1,
   defense: 1,
   magicAttack: 1,
   healingPower: 1,
-};
+});
 
 function createHero(): Combatant {
-  const stats: Stats = {
+  const baseStats = new BaseStats({
     maxHp: 100,
     maxMp: 30,
     strength: 20,
     defense: 10,
     magicAttack: 5,
     healingPower: 5,
-  };
+  });
 
-  return new Combatant("勇者", stats);
+  return new Combatant("勇者", baseStats);
 }
 
 function createSlime(): Combatant {
-  const stats: Stats = {
+  const baseStats = new BaseStats({
     maxHp: 30,
     maxMp: 5,
     strength: 15,
     defense: 5,
     magicAttack: 2,
     healingPower: 2,
-  };
+  });
 
-  return new Combatant("スライム", stats);
+  return new Combatant("スライム", baseStats);
 }
 
 function createOrc(): Combatant {
-  const stats: Stats = {
+  const baseStats = new BaseStats({
     maxHp: 70,
     maxMp: 10,
     strength: 20,
     defense: 5,
     magicAttack: 5,
     healingPower: 5,
-  };
+  });
 
-  return new Combatant("オーク", stats);
+  return new Combatant("オーク", baseStats);
 }
 
-function createMockCombatant(name = "モック", stats = mockStats): Combatant {
-  return new Combatant(name, stats);
+function createMockCombatant(
+  name = "モック",
+  baseStats = mockBaseStats,
+): Combatant {
+  return new Combatant(name, baseStats);
 }
 
 function createFireBall(): AttackMagic {
@@ -80,37 +83,55 @@ describe("作成系", () => {
 
   test("最大hpが0以下の戦闘キャラを作成できない", () => {
     expect(() =>
-      createMockCombatant(undefined, { ...mockStats, maxHp: 0 }),
+      createMockCombatant(
+        undefined,
+        new BaseStats({ ...mockBaseStats, maxHp: 0 }),
+      ),
     ).toThrow("max hp must be greater than 0");
   });
 
   test("最大mpが負の戦闘キャラを作成できない", () => {
     expect(() =>
-      createMockCombatant(undefined, { ...mockStats, maxMp: -1 }),
+      createMockCombatant(
+        undefined,
+        new BaseStats({ ...mockBaseStats, maxMp: -1 }),
+      ),
     ).toThrow("max mp cannot be negative");
   });
 
   test("攻撃力が負の戦闘キャラを作成できない", () => {
     expect(() =>
-      createMockCombatant(undefined, { ...mockStats, strength: -1 }),
+      createMockCombatant(
+        undefined,
+        new BaseStats({ ...mockBaseStats, strength: -1 }),
+      ),
     ).toThrow("strength cannot be negative");
   });
 
   test("防御力が負の戦闘キャラを作成できない", () => {
     expect(() =>
-      createMockCombatant(undefined, { ...mockStats, defense: -1 }),
+      createMockCombatant(
+        undefined,
+        new BaseStats({ ...mockBaseStats, defense: -1 }),
+      ),
     ).toThrow("defense cannot be negative");
   });
 
   test("攻撃魔力が負の戦闘キャラを作成できない", () => {
     expect(() =>
-      createMockCombatant(undefined, { ...mockStats, magicAttack: -1 }),
+      createMockCombatant(
+        undefined,
+        new BaseStats({ ...mockBaseStats, magicAttack: -1 }),
+      ),
     ).toThrow("magic attack cannot be negative");
   });
 
   test("回復魔力が負の戦闘キャラを作成できない", () => {
     expect(() =>
-      createMockCombatant(undefined, { ...mockStats, healingPower: -1 }),
+      createMockCombatant(
+        undefined,
+        new BaseStats({ ...mockBaseStats, healingPower: -1 }),
+      ),
     ).toThrow("healing power cannot be negative");
   });
 });
@@ -235,7 +256,7 @@ describe("魔法系", () => {
 
     hero.learnMagic(heal);
     hero.act(new Heal(hero, heal));
-    expect(hero.hp).toBe(hero.stats.maxHp);
+    expect(hero.hp).toBe(hero.calculatedStats.maxHp);
   });
 });
 

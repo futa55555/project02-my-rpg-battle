@@ -1,5 +1,5 @@
 import { type EquipmentSlots } from "./equipmentSlots";
-import { type StatsBonus } from "./statsBonus";
+import { BonusStats } from "./stats";
 
 export type EquipmentByKind = {
   weapon: Weapon;
@@ -9,29 +9,29 @@ export type EquipmentByKind = {
 export abstract class Equipment {
   abstract readonly kind: keyof EquipmentByKind;
   private _name: string;
-  private _statsBonus: StatsBonus;
+  private _bonusStats: BonusStats;
 
-  constructor(name: string, statsBonus: StatsBonus) {
+  constructor(name: string, bonusStats: BonusStats) {
     if (name.trim() === "") {
       throw new Error("name cannot be empty");
     }
     this._name = name;
 
-    this._statsBonus = statsBonus;
+    this._bonusStats = bonusStats;
   }
 
   get name(): string {
     return this._name;
   }
-  get statsBonus(): StatsBonus {
-    return this._statsBonus;
+  get bonusStats(): BonusStats {
+    return this._bonusStats;
   }
 
   equals(equipment: Equipment): boolean {
     return (
       this.kind === equipment.kind &&
       this._name === equipment.name &&
-      this._statsBonus.equals(equipment.statsBonus)
+      this._bonusStats.equals(equipment.bonusStats)
     );
   }
 

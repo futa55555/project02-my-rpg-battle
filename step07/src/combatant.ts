@@ -1,7 +1,7 @@
 import { type Action } from "./action";
 import { type Magic } from "./magic";
 import { type Skill } from "./skill";
-import { type Stats, validateStats } from "./stats";
+import { type Stats } from "./stats";
 
 export type Damage = {
   type: "physical" | "magical";
@@ -10,7 +10,7 @@ export type Damage = {
 
 export class Combatant {
   private _name: string;
-  private _stats: Stats;
+  protected _stats: Stats;
   private _hp: number;
   private _mp: number;
   private readonly _magics: Magic[];
@@ -22,7 +22,6 @@ export class Combatant {
     }
     this._name = name;
 
-    validateStats(stats);
     this._stats = stats;
 
     this._hp = stats.maxHp;
@@ -35,7 +34,7 @@ export class Combatant {
   get name(): string {
     return this._name;
   }
-  get stats(): Stats {
+  get calculatedStats(): Stats {
     return this._stats;
   }
   get hp(): number {
@@ -64,7 +63,7 @@ export class Combatant {
   private calculateDamage(damage: Damage): number {
     switch (damage.type) {
       case "physical":
-        return Math.max(damage.value - this.stats.defense, 0);
+        return Math.max(damage.value - this.calculatedStats.defense, 0);
       case "magical":
         return damage.value;
       default:

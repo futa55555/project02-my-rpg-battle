@@ -47,7 +47,7 @@ export class BasicAttack extends Attack {
   protected calculateDamage(actor: Combatant): Damage {
     const damage: Damage = {
       type: "physical",
-      value: actor.stats.strength,
+      value: actor.calculatedStats.strength,
     };
     return damage;
   }
@@ -69,7 +69,7 @@ export class MagicAttack extends Attack {
   protected calculateDamage(actor: Combatant): Damage {
     const damage: Damage = {
       type: "magical",
-      value: actor.stats.magicAttack + this._magic.power,
+      value: actor.calculatedStats.magicAttack + this._magic.power,
     };
     return damage;
   }
@@ -91,7 +91,7 @@ export class SkillAttack extends Attack {
   protected calculateDamage(actor: Combatant): Damage {
     const damage: Damage = {
       type: "physical",
-      value: actor.stats.strength + this._skill.power,
+      value: actor.calculatedStats.strength + this._skill.power,
     };
     return damage;
   }
@@ -115,6 +115,8 @@ export class Heal extends Action {
 
     actor.assertHasLearnedMagic(this._magic);
 
-    this._target.healDamage(actor.stats.healingPower + this._magic.power);
+    this._target.healDamage(
+      actor.calculatedStats.healingPower + this._magic.power,
+    );
   }
 }

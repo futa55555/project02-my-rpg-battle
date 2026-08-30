@@ -1,7 +1,7 @@
 import { Combatant } from "./combatant";
 import { EquipmentByKind, type Equipment } from "./equipment";
 import { type EquipmentSlot } from "./equipmentSlot";
-import { createEquipmentSlots, type EquipmentSlots } from "./equipmentSlots";
+import { EquipmentSlots } from "./equipmentSlots";
 import { type Stats } from "./stats";
 
 export class Character extends Combatant {
@@ -10,11 +10,14 @@ export class Character extends Combatant {
   constructor(name: string, stats: Stats) {
     super(name, stats);
 
-    this._equipmentSlots = createEquipmentSlots();
+    this._equipmentSlots = new EquipmentSlots();
   }
 
   get equipmentSlots(): EquipmentSlots {
     return this._equipmentSlots;
+  }
+  get calculatedStats(): Stats {
+    return this._stats;
   }
 
   equip(equipment: Equipment): void {
