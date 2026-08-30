@@ -58,11 +58,7 @@ export class Combatant {
   takeDamage(damage: Damage): void {
     const calculatedDamage = this.calculateDamage(damage);
 
-    if (calculatedDamage < this._hp) {
-      this._hp -= calculatedDamage;
-    } else {
-      this._hp = 0;
-    }
+    this._hp = this.clampHp(this._hp - calculatedDamage);
   }
 
   private calculateDamage(damage: Damage): number {
@@ -77,11 +73,7 @@ export class Combatant {
   }
 
   healDamage(power: number): void {
-    if (power < this._stats.maxHp - this._hp) {
-      this._hp += power;
-    } else {
-      this._hp = this._stats.maxHp;
-    }
+    this._hp = this.clampHp(this._hp + power);
   }
 
   learnMagic(magic: Magic): void {
@@ -144,5 +136,9 @@ export class Combatant {
 
   private canAct(): boolean {
     return this.isAlive();
+  }
+
+  private clampHp(value: number): number {
+    return Math.max(0, Math.min(value, this._stats.maxHp));
   }
 }

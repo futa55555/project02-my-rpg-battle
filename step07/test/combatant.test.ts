@@ -123,6 +123,22 @@ test("通常攻撃できる", () => {
   expect(orc.hp).toBe(55);
 });
 
+test("攻撃を受けてもhpは0を下回らない", () => {
+  const hero = createHero();
+  const orc = createOrc();
+
+  hero.act(new BasicAttack(orc));
+  expect(orc.hp).toBe(55);
+  hero.act(new BasicAttack(orc));
+  expect(orc.hp).toBe(40);
+  hero.act(new BasicAttack(orc));
+  expect(orc.hp).toBe(25);
+  hero.act(new BasicAttack(orc));
+  expect(orc.hp).toBe(10);
+  hero.act(new BasicAttack(orc));
+  expect(orc.hp).toBe(0);
+});
+
 test("hpが0の戦闘キャラは行動できない", () => {
   const hero = createHero();
 
@@ -219,7 +235,7 @@ describe("魔法系", () => {
 
     hero.learnMagic(heal);
     hero.act(new Heal(hero, heal));
-    expect(hero.hp).toBe(100);
+    expect(hero.hp).toBe(hero.stats.maxHp);
   });
 });
 
