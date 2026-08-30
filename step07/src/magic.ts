@@ -1,5 +1,7 @@
-export abstract class Magic<T = unknown> {
-  declare private readonly _brand: T;
+export type MagicKind = "attack" | "heal";
+
+export abstract class Magic {
+  abstract readonly kind: MagicKind;
   private _name: string;
   private _power: number;
 
@@ -23,10 +25,18 @@ export abstract class Magic<T = unknown> {
   }
 
   isSameMagic(magic: Magic): boolean {
-    return this._name === magic.name;
+    return (
+      this.kind === magic.kind &&
+      this._name === magic.name &&
+      this._power === magic.power
+    );
   }
 }
 
-export class AttackMagic extends Magic<"attack"> {}
+export class AttackMagic extends Magic {
+  readonly kind = "attack";
+}
 
-export class HealMagic extends Magic<"heal"> {}
+export class HealMagic extends Magic {
+  readonly kind = "heal";
+}
